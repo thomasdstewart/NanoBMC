@@ -1,0 +1,7 @@
+.pio/
+.vscode/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+include/config.h

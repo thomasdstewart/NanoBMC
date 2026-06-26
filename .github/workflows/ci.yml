@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  platformio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install PlatformIO
+        run: pip install platformio
+      - name: Create local config
+        run: cp include/config.example.h include/config.h
+      - name: Run native tests
+        run: pio test -e native
+      - name: Build ESP32-C3 firmware
+        run: pio run -e esp32c3
