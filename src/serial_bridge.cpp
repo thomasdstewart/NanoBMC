@@ -72,7 +72,7 @@ ArduinoSerialBridgeIo io;
 } // namespace
 
 void beginSerialBridge() {
-  Serial1.begin(SERIAL_BAUD, SERIAL_8N1);
+  Serial1.begin(SERIAL_BAUD, SERIAL_8N1, SERIAL_RX_GPIO, SERIAL_TX_GPIO);
   server.begin();
   server.setNoDelay(true);
 }

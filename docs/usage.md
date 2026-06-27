@@ -2,17 +2,17 @@
 
 ## Start NanoBMC
 
-Flash the ESP32-C3 and power it. The USB serial boot log should show the firmware name, version, AP name, IP address, TCP serial port, and web port.
+Flash the ESP32-C3 with the steps in `docs/flash.md`, wire the board with `docs/hardware.md`, and power it. The USB serial boot log should show the firmware name, version, AP name, IP address, TCP serial port, and web port.
 
 ## Connect to WiFi
 
-Join the AP:
+Join the AP configured in `include/config.h`. The default development values are:
 
 - SSID: `NanoBMC`
 - Password: `changeme-nanobmc`
 - IP: `192.168.4.1`
 
-Change the password in `include/config.h` before practical use.
+Change the password before practical use.
 
 ## Web status page
 

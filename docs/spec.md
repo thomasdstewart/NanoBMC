@@ -136,6 +136,8 @@ include/config.h       # ignored by git
 #define WIFI_AP_PASSWORD "changeme-nanobmc"
 
 #define SERIAL_BAUD 115200
+#define SERIAL_RX_GPIO 18
+#define SERIAL_TX_GPIO 19
 #define SERIAL_TCP_PORT 23
 
 #define PI_RESET_GPIO 4
@@ -156,6 +158,8 @@ Create this layout:
 │       └── ci.yml
 ├── docs/
 │   ├── hardware.md
+│   ├── build.md
+│   ├── flash.md
 │   ├── usage.md
 │   └── testing.md
 ├── include/
