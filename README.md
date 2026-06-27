@@ -6,95 +6,65 @@ NanoBMC is a small ESP32-C3 based "poor man's BMC" for a headless Raspberry Pi o
 
 NanoBMC v0.1.0 intentionally does not include MQTT, OTA updates, BLE, captive portal, TLS, station mode, a web terminal, complex config storage, or authentication. Physical proximity to the AP is assumed.
 
-## Hardware required
+## Documentation
+
+- [Hardware](docs/hardware.md): connection map, pin assignments, Raspberry Pi header pins, and reset circuit safety.
+- [Build](docs/build.md): PlatformIO setup, local configuration, and firmware build commands.
+- [Flash](docs/flash.md): automatic and manual ESP32-C3 flashing workflows, including BOOT/FLASH plus RESET timing.
+- [Usage](docs/usage.md): WiFi AP, web status page, serial bridge, and reset operation.
+- [Testing](docs/testing.md): automated tests and manual integration test plan.
+- [Specification](docs/spec.md): project goals and design constraints.
+
+## Quick start
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+pip install platformio
+cp include/config.example.h include/config.h
+pio run -e esp32c3
+pio run -e esp32c3 -t upload
+pio device monitor -b 115200
+```
+
+Before practical use, edit `include/config.h` to change the default AP password and confirm the reset GPIO matches your wiring.
+
+## Hardware summary
+
+Required hardware:
 
 - ESP32-C3 development board
 - Raspberry Pi or Compute Module with UART enabled
 - Jumper wires and common ground
 - Safe Pi RUN/reset interface, such as an open-drain style transistor/MOSFET circuit
 
-## Wiring
+See [docs/hardware.md](docs/hardware.md) for the canonical wiring table. Do not drive the Pi RUN pin directly high; use 3.3 V logic only and treat reset as active-low.
 
-| ESP32-C3 | Raspberry Pi | Notes |
-| --- | --- | --- |
-| GND | GND | Required common ground |
-| RX | Pi TX | 3.3 V UART |
-| TX | Pi RX | 3.3 V UART |
-| GPIO 4 by default | RUN/reset circuit | Active-low pulse through safe open-drain style circuit |
-
-Do not drive the Pi RUN pin directly high. Use 3.3 V logic only and treat reset as active-low.
-
-## Build environment setup
-
-```sh
-python3 -m venv .venv
-. .venv/bin/activate
-pip install platformio
-```
-
-## Configuration
-
-Create your local config before building:
-
-```sh
-cp include/config.example.h include/config.h
-```
-
-Edit `include/config.h` to change the AP password, reset GPIO, serial baud rate, or TCP port. `include/config.h` is ignored by git so local secrets and board-specific settings are not committed.
-
-Default AP credentials:
+## Default access
 
 - SSID: `NanoBMC`
 - Password: `changeme-nanobmc`
 - IP: `192.168.4.1`
+- Serial bridge: TCP port `23`
 
 Change the default password before real use.
 
-## Build, upload, and monitor
+## Common commands
 
 ```sh
+pio test -e native
 pio run -e esp32c3
 pio run -e esp32c3 -t upload
 pio device monitor -b 115200
 ```
 
-If your ESP32-C3 board differs, change `board = esp32-c3-devkitm-1` in `platformio.ini` to the matching PlatformIO board ID.
+## Security notes
 
-## Usage
-
-Join the NanoBMC WiFi network, then open the status page:
-
-```sh
-curl http://192.168.4.1/
-```
-
-Connect to the Pi serial console:
-
-```sh
-nc 192.168.4.1 23
-```
-
-Only one serial client is supported. If a second client connects while the first is active, NanoBMC rejects the second client with a short busy message.
-
-To reset the Pi, open `http://192.168.4.1/` in a browser and press **Pulse Pi reset**. The button sends a POST request and includes a browser confirmation to avoid accidental resets on refresh.
-
-## Tests
-
-```sh
-pio test -e native
-```
-
-Native tests cover reset pulse logic and TCP/UART bridge byte-pumping logic. Hardware WiFi, UART pins, and reset wiring are tested manually.
-
-## Pre-commit
-
-```sh
-pip install pre-commit
-pre-commit install
-pre-commit run --all-files
-```
-
-Hooks check whitespace, EOF newlines, YAML syntax, large files, and C/C++ formatting.
+- Change the default AP password.
+- Do not expose the AP permanently unless needed.
+- The TCP serial bridge has no authentication in v0.1.0.
+- Serial console access may allow root access depending on Pi configuration.
+- Do not add station mode on untrusted networks without authentication and transport security.
 
 ## Conventional commits
 
@@ -105,19 +75,3 @@ Commit messages should follow Conventional Commits, for example:
 - `docs: add wiring diagram`
 - `test: add reset control tests`
 - `ci: build firmware in GitHub Actions`
-
-## Security notes
-
-- Change the default AP password.
-- Do not expose the AP permanently unless needed.
-- The TCP serial bridge has no authentication in v0.1.0.
-- Serial console access may allow root access depending on Pi configuration.
-- Do not add station mode on untrusted networks without authentication and transport security.
-
-## Troubleshooting
-
-- No AP appears: check the ESP32-C3 board selection and USB power.
-- Cannot reach `192.168.4.1`: confirm your laptop or phone joined the NanoBMC AP.
-- No serial console: verify Pi UART is enabled and TX/RX are crossed.
-- Garbage serial output: confirm both sides use 115200 8N1 by default.
-- Reset does not work: verify the configured GPIO and open-drain style RUN/reset circuit.

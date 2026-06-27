@@ -156,6 +156,8 @@ Create this layout:
 │       └── ci.yml
 ├── docs/
 │   ├── hardware.md
+│   ├── build.md
+│   ├── flash.md
 │   ├── usage.md
 │   └── testing.md
 ├── include/
