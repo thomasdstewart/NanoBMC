@@ -27,7 +27,7 @@ pio run -e esp32c3 -t upload
 pio device monitor -b 115200
 ```
 
-Before practical use, edit `include/config.h` to change the default AP password and confirm the reset GPIO matches your wiring.
+Before practical use, edit `include/config.h` to change the default AP password and confirm the UART and reset GPIOs match your wiring.
 
 ## Hardware summary
 
