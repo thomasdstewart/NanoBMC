@@ -16,12 +16,12 @@ void setup() {
   Serial.println(NANOBMC_VERSION);
 
   setupResetControl();
-  beginSerialBridge();
 
   Serial.print("Starting WiFi AP: ");
   Serial.println(WIFI_AP_SSID);
   startWifiAp();
 
+  beginSerialBridge();
   beginWebServer();
 
   Serial.print("AP IP: ");
