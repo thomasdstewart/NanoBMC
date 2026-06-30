@@ -63,6 +63,44 @@ void test_bridge_moves_simple_byte_sequences() {
   TEST_ASSERT_EQUAL(11, moved);
 }
 
+void test_bridge_sends_telnet_negotiation_greeting() {
+  FakeSerialBridgeIo io;
+  SerialBridgePump pump;
+
+  const size_t moved = pump.sendTelnetGreeting(io);
+
+  const std::string expected =
+      std::string("\xff\xfb\x01", 3) + std::string("\xff\xfb\x03", 3) +
+      std::string("\xff\xfd\x03", 3);
+  TEST_ASSERT_EQUAL(9, moved);
+  TEST_ASSERT_EQUAL_STRING_LEN(expected.c_str(), io.clientOut.c_str(),
+                               expected.size());
+}
+
+void test_bridge_filters_telnet_negotiation_from_uart() {
+  FakeSerialBridgeIo io;
+  io.clientIn = std::string("\xff\xfd\x03", 3) + "help\r";
+  SerialBridgePump pump;
+
+  const size_t moved = pump.pump(io);
+
+  TEST_ASSERT_EQUAL_STRING("help\r", io.uartOut.c_str());
+  TEST_ASSERT_EQUAL(5, moved);
+}
+
+void test_bridge_forwards_escaped_telnet_iac_byte() {
+  FakeSerialBridgeIo io;
+  io.clientIn = std::string("a\xff\xffz", 4);
+  SerialBridgePump pump;
+
+  const size_t moved = pump.pump(io);
+
+  const std::string expected = std::string("a\xffz", 3);
+  TEST_ASSERT_EQUAL_STRING_LEN(expected.c_str(), io.uartOut.c_str(),
+                               expected.size());
+  TEST_ASSERT_EQUAL(3, moved);
+}
+
 void test_bridge_handles_disconnected_client() {
   FakeSerialBridgeIo io;
   io.connected = false;
@@ -79,6 +117,9 @@ void test_bridge_handles_disconnected_client() {
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_bridge_moves_simple_byte_sequences);
+  RUN_TEST(test_bridge_sends_telnet_negotiation_greeting);
+  RUN_TEST(test_bridge_filters_telnet_negotiation_from_uart);
+  RUN_TEST(test_bridge_forwards_escaped_telnet_iac_byte);
   RUN_TEST(test_bridge_handles_disconnected_client);
   return UNITY_END();
 }

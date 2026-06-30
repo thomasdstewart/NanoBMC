@@ -32,7 +32,7 @@ Connect with netcat or telnet-style tools:
 nc 192.168.4.1 23
 ```
 
-The bridge is a raw byte stream. It does not implement terminal emulation. Only one active serial client is supported; additional clients are rejected while the bridge is busy.
+The bridge is a raw byte stream, with minimal telnet option negotiation on connect so telnet clients disable local echo and suppress go-ahead. This avoids doubled characters and lets the remote serial console handle erase keys instead of the local telnet client printing `^?` or `^H`. It does not implement full terminal emulation. Only one active serial client is supported; additional clients are rejected while the bridge is busy.
 
 ## Reset the Raspberry Pi
 

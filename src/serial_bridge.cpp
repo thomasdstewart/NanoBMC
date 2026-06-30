@@ -6,9 +6,70 @@
 #include <WiFi.h>
 #endif
 
+namespace {
+constexpr uint8_t kTelnetIac = 255;
+constexpr uint8_t kTelnetWill = 251;
+constexpr uint8_t kTelnetDo = 253;
+constexpr uint8_t kTelnetEcho = 1;
+constexpr uint8_t kTelnetSuppressGoAhead = 3;
+
+enum class TelnetParseState {
+  Data,
+  Command,
+  Option,
+};
+
+TelnetParseState telnetState = TelnetParseState::Data;
+
+bool shouldForwardClientByte(uint8_t byte) {
+  switch (telnetState) {
+  case TelnetParseState::Data:
+    if (byte == kTelnetIac) {
+      telnetState = TelnetParseState::Command;
+      return false;
+    }
+    return true;
+  case TelnetParseState::Command:
+    if (byte == kTelnetIac) {
+      telnetState = TelnetParseState::Data;
+      return true;
+    }
+    if (byte >= 251 && byte <= 254) {
+      telnetState = TelnetParseState::Option;
+    } else {
+      telnetState = TelnetParseState::Data;
+    }
+    return false;
+  case TelnetParseState::Option:
+    telnetState = TelnetParseState::Data;
+    return false;
+  }
+  return true;
+}
+} // namespace
+
+void SerialBridgePump::resetClientSession() {
+  telnetState = TelnetParseState::Data;
+}
+
+size_t SerialBridgePump::sendTelnetGreeting(SerialBridgeIo &io) {
+  static constexpr uint8_t kGreeting[] = {
+      kTelnetIac, kTelnetWill, kTelnetEcho,
+      kTelnetIac, kTelnetWill, kTelnetSuppressGoAhead,
+      kTelnetIac, kTelnetDo, kTelnetSuppressGoAhead,
+  };
+
+  size_t moved = 0;
+  for (const uint8_t byte : kGreeting) {
+    moved += io.clientWrite(byte);
+  }
+  return moved;
+}
+
 size_t SerialBridgePump::pump(SerialBridgeIo &io) {
   if (!io.clientConnected()) {
     io.stopClient();
+    resetClientSession();
     return 0;
   }
 
@@ -18,7 +79,10 @@ size_t SerialBridgePump::pump(SerialBridgeIo &io) {
     if (value < 0) {
       break;
     }
-    moved += io.uartWrite(static_cast<uint8_t>(value));
+    const uint8_t byte = static_cast<uint8_t>(value);
+    if (shouldForwardClientByte(byte)) {
+      moved += io.uartWrite(byte);
+    }
   }
 
   while (io.uartAvailable() > 0 && io.clientConnected()) {
@@ -86,6 +150,8 @@ void handleSerialBridge() {
     } else {
       client = incoming;
       client.setNoDelay(true);
+      pump.resetClientSession();
+      pump.sendTelnetGreeting(io);
     }
   }
   pump.pump(io);
