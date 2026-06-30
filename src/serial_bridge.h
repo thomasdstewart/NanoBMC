@@ -18,6 +18,8 @@ public:
 
 class SerialBridgePump {
 public:
+  void resetClientSession();
+  size_t sendTelnetGreeting(SerialBridgeIo &io);
   size_t pump(SerialBridgeIo &io);
 };
 
