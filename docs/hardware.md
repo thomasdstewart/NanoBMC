@@ -4,13 +4,13 @@ NanoBMC v0.1.0 targets an ESP32-C3 development board connected to a Raspberry Pi
 
 ## Connection map
 
-Use this table as the single source of truth for the default wiring. The firmware explicitly configures the bridge UART pins from `include/config.h`; the checked-in defaults are ESP32-C3 `GPIO18` for NanoBMC RX and `GPIO19` for NanoBMC TX. Do not assume the board silkscreen pins labeled `RX` and `TX` are correct, because those are often UART0/programming pins rather than the `Serial1` pins used by the TCP bridge.
+Use this table as the single source of truth for the default wiring. The firmware explicitly configures the bridge UART pins from `include/config.h`; the checked-in defaults are ESP32-C3 `GPIO0` for NanoBMC RX and `GPIO1` for NanoBMC TX. Do not assume the board silkscreen pins labeled `RX` and `TX` are correct, because those are often UART0/programming pins rather than the `Serial1` pins used by the TCP bridge.
 
 | NanoBMC signal | ESP32-C3 assignment | ESP32-C3 board label guidance | Raspberry Pi assignment | Raspberry Pi 40-pin header | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | Ground | `GND` | `GND` | `GND` | Physical pin 6, 9, 14, 20, 25, 30, 34, or 39 | Required common reference |
-| UART RX | `GPIO18` by default, configured by `SERIAL_RX_GPIO` | Use the header/pad for `GPIO18`; do not use a silkscreen-only `RX` pin unless your board pinout confirms it is `GPIO18` | `GPIO14` / `TXD0` | Physical pin 8 | Pi console output to NanoBMC |
-| UART TX | `GPIO19` by default, configured by `SERIAL_TX_GPIO` | Use the header/pad for `GPIO19`; do not use a silkscreen-only `TX` pin unless your board pinout confirms it is `GPIO19` | `GPIO15` / `RXD0` | Physical pin 10 | NanoBMC input to Pi console |
+| UART RX | `GPIO0` by default, configured by `SERIAL_RX_GPIO` | Use the header/pad for `GPIO0`; do not use a silkscreen-only `RX` pin unless your board pinout confirms it is `GPIO0` | `GPIO14` / `TXD0` | Physical pin 8 | Pi console output to NanoBMC |
+| UART TX | `GPIO1` by default, configured by `SERIAL_TX_GPIO` | Use the header/pad for `GPIO1`; do not use a silkscreen-only `TX` pin unless your board pinout confirms it is `GPIO1` | `GPIO15` / `RXD0` | Physical pin 10 | NanoBMC input to Pi console |
 | Pi reset output | `GPIO4` by default, configured by `PI_RESET_GPIO` | Often `D2` on D1-mini-style boards; verify your board pinout | `RUN` / reset header or pad through safe circuit | Dedicated RUN header/pads; not a normal 40-pin GPIO header pin | Active-low reset pulse |
 
 UART TX/RX must be crossed: NanoBMC `SERIAL_RX_GPIO` connects to Pi `GPIO14`/`TXD0`, and NanoBMC `SERIAL_TX_GPIO` connects to Pi `GPIO15`/`RXD0`.
@@ -26,7 +26,9 @@ UART TX/RX must be crossed: NanoBMC `SERIAL_RX_GPIO` connects to Pi `GPIO14`/`TX
 
 Many ESP32-C3 boards expose pins labeled `RX` and `TX` for UART0 flashing/logging. NanoBMC's serial bridge uses `Serial1`, configured by `SERIAL_RX_GPIO` and `SERIAL_TX_GPIO`, so wire to the configured GPIO numbers instead of trusting generic `RX`/`TX` labels.
 
-If your board does not break out `GPIO18` and `GPIO19`, choose two safe 3.3 V GPIOs that are available on your board, update `SERIAL_RX_GPIO` and `SERIAL_TX_GPIO` in `include/config.h`, rebuild, and wire the Pi to those configured pins.
+When native USB CDC logging is enabled, do not assign the bridge UART to ESP32-C3 `GPIO18` or `GPIO19`; those pins are used by USB D-/D+ on USB-capable C3 boards and can break USB serial monitoring.
+
+If your board does not break out `GPIO0` and `GPIO1`, choose two safe 3.3 V GPIOs that are available on your board, update `SERIAL_RX_GPIO` and `SERIAL_TX_GPIO` in `include/config.h`, rebuild, and wire the Pi to those configured pins.
 
 ## Reset circuit safety
 
