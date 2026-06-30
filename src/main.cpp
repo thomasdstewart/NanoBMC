@@ -35,4 +35,5 @@ void setup() {
 void loop() {
   handleSerialBridge();
   handleWebServer();
+  delay(1);
 }
