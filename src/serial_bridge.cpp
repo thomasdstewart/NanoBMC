@@ -17,32 +17,63 @@ enum class TelnetParseState {
   Data,
   Command,
   Option,
+  CrSequence,
 };
 
 TelnetParseState telnetState = TelnetParseState::Data;
+bool pendingCarriageReturn = false;
+bool resumeCrSequenceAfterCommand = false;
+
+TelnetParseState stateAfterTelnetCommand() {
+  if (resumeCrSequenceAfterCommand) {
+    resumeCrSequenceAfterCommand = false;
+    return TelnetParseState::CrSequence;
+  }
+  return TelnetParseState::Data;
+}
 
 bool shouldForwardClientByte(uint8_t byte) {
+  pendingCarriageReturn = false;
+
   switch (telnetState) {
   case TelnetParseState::Data:
     if (byte == kTelnetIac) {
+      resumeCrSequenceAfterCommand = false;
       telnetState = TelnetParseState::Command;
       return false;
+    }
+    if (byte == '\r') {
+      telnetState = TelnetParseState::CrSequence;
+      pendingCarriageReturn = true;
+      return true;
     }
     return true;
   case TelnetParseState::Command:
     if (byte == kTelnetIac) {
+      resumeCrSequenceAfterCommand = false;
       telnetState = TelnetParseState::Data;
       return true;
     }
     if (byte >= 251 && byte <= 254) {
       telnetState = TelnetParseState::Option;
     } else {
-      telnetState = TelnetParseState::Data;
+      telnetState = stateAfterTelnetCommand();
     }
     return false;
   case TelnetParseState::Option:
-    telnetState = TelnetParseState::Data;
+    telnetState = stateAfterTelnetCommand();
     return false;
+  case TelnetParseState::CrSequence:
+    telnetState = TelnetParseState::Data;
+    if (byte == '\0' || byte == '\n') {
+      return false;
+    }
+    if (byte == kTelnetIac) {
+      resumeCrSequenceAfterCommand = true;
+      telnetState = TelnetParseState::Command;
+      return false;
+    }
+    return true;
   }
   return true;
 }
@@ -50,6 +81,8 @@ bool shouldForwardClientByte(uint8_t byte) {
 
 void SerialBridgePump::resetClientSession() {
   telnetState = TelnetParseState::Data;
+  pendingCarriageReturn = false;
+  resumeCrSequenceAfterCommand = false;
 }
 
 size_t SerialBridgePump::sendTelnetGreeting(SerialBridgeIo &io) {
@@ -81,7 +114,7 @@ size_t SerialBridgePump::pump(SerialBridgeIo &io) {
     }
     const uint8_t byte = static_cast<uint8_t>(value);
     if (shouldForwardClientByte(byte)) {
-      moved += io.uartWrite(byte);
+      moved += io.uartWrite(pendingCarriageReturn ? '\r' : byte);
     }
   }
 

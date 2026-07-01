@@ -101,6 +101,42 @@ void test_bridge_forwards_escaped_telnet_iac_byte() {
   TEST_ASSERT_EQUAL(3, moved);
 }
 
+
+void test_bridge_strips_telnet_cr_nul_from_uart() {
+  FakeSerialBridgeIo io;
+  io.clientIn = std::string("sudo -i\r\0", 9);
+  SerialBridgePump pump;
+
+  const size_t moved = pump.pump(io);
+
+  TEST_ASSERT_EQUAL_STRING("sudo -i\r", io.uartOut.c_str());
+  TEST_ASSERT_EQUAL(8, moved);
+}
+
+void test_bridge_collapses_telnet_cr_lf_from_uart() {
+  FakeSerialBridgeIo io;
+  io.clientIn = "sudo -i\r\n";
+  SerialBridgePump pump;
+
+  const size_t moved = pump.pump(io);
+
+  TEST_ASSERT_EQUAL_STRING("sudo -i\r", io.uartOut.c_str());
+  TEST_ASSERT_EQUAL(8, moved);
+}
+
+
+void test_bridge_resumes_cr_sequence_after_telnet_option() {
+  FakeSerialBridgeIo io;
+  io.clientIn = std::string("sudo -i\r", 8) +
+                std::string("\xff\xfd\x03", 3) + "\n";
+  SerialBridgePump pump;
+
+  const size_t moved = pump.pump(io);
+
+  TEST_ASSERT_EQUAL_STRING("sudo -i\r", io.uartOut.c_str());
+  TEST_ASSERT_EQUAL(8, moved);
+}
+
 void test_bridge_handles_disconnected_client() {
   FakeSerialBridgeIo io;
   io.connected = false;
@@ -120,6 +156,9 @@ int main() {
   RUN_TEST(test_bridge_sends_telnet_negotiation_greeting);
   RUN_TEST(test_bridge_filters_telnet_negotiation_from_uart);
   RUN_TEST(test_bridge_forwards_escaped_telnet_iac_byte);
+  RUN_TEST(test_bridge_strips_telnet_cr_nul_from_uart);
+  RUN_TEST(test_bridge_collapses_telnet_cr_lf_from_uart);
+  RUN_TEST(test_bridge_resumes_cr_sequence_after_telnet_option);
   RUN_TEST(test_bridge_handles_disconnected_client);
   return UNITY_END();
 }
