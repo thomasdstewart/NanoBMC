@@ -17,16 +17,25 @@ enum class TelnetParseState {
   Data,
   Command,
   Option,
+  CrSequence,
 };
 
 TelnetParseState telnetState = TelnetParseState::Data;
+bool pendingCarriageReturn = false;
 
 bool shouldForwardClientByte(uint8_t byte) {
+  pendingCarriageReturn = false;
+
   switch (telnetState) {
   case TelnetParseState::Data:
     if (byte == kTelnetIac) {
       telnetState = TelnetParseState::Command;
       return false;
+    }
+    if (byte == '\r') {
+      telnetState = TelnetParseState::CrSequence;
+      pendingCarriageReturn = true;
+      return true;
     }
     return true;
   case TelnetParseState::Command:
@@ -43,6 +52,16 @@ bool shouldForwardClientByte(uint8_t byte) {
   case TelnetParseState::Option:
     telnetState = TelnetParseState::Data;
     return false;
+  case TelnetParseState::CrSequence:
+    telnetState = TelnetParseState::Data;
+    if (byte == '\0' || byte == '\n') {
+      return false;
+    }
+    if (byte == kTelnetIac) {
+      telnetState = TelnetParseState::Command;
+      return false;
+    }
+    return true;
   }
   return true;
 }
@@ -50,6 +69,7 @@ bool shouldForwardClientByte(uint8_t byte) {
 
 void SerialBridgePump::resetClientSession() {
   telnetState = TelnetParseState::Data;
+  pendingCarriageReturn = false;
 }
 
 size_t SerialBridgePump::sendTelnetGreeting(SerialBridgeIo &io) {
@@ -81,7 +101,7 @@ size_t SerialBridgePump::pump(SerialBridgeIo &io) {
     }
     const uint8_t byte = static_cast<uint8_t>(value);
     if (shouldForwardClientByte(byte)) {
-      moved += io.uartWrite(byte);
+      moved += io.uartWrite(pendingCarriageReturn ? '\r' : byte);
     }
   }
 
