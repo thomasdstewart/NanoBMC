@@ -12,5 +12,5 @@
 #define SERIAL_TCP_PORT 23
 
 #define PI_RESET_GPIO 4
-#define PI_RESET_ACTIVE_LOW true
+#define PI_RESET_ACTIVE_LOW false
 #define PI_RESET_PULSE_MS 500

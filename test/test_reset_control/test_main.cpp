@@ -21,7 +21,13 @@ public:
   }
 };
 
-void test_active_low_levels_are_correct() {
+void test_default_active_high_levels_are_correct() {
+  ResetPulseConfig config{PI_RESET_GPIO, PI_RESET_ACTIVE_LOW, PI_RESET_PULSE_MS};
+  TEST_ASSERT_TRUE(resetActiveLevel(config));
+  TEST_ASSERT_FALSE(resetInactiveLevel(config));
+}
+
+void test_active_low_override_levels_are_correct() {
   ResetPulseConfig config{PI_RESET_GPIO, true, PI_RESET_PULSE_MS};
   TEST_ASSERT_FALSE(resetActiveLevel(config));
   TEST_ASSERT_TRUE(resetInactiveLevel(config));
@@ -52,7 +58,8 @@ void test_configure_sets_inactive_level() {
 
 int main() {
   UNITY_BEGIN();
-  RUN_TEST(test_active_low_levels_are_correct);
+  RUN_TEST(test_default_active_high_levels_are_correct);
+  RUN_TEST(test_active_low_override_levels_are_correct);
   RUN_TEST(test_pulse_uses_configured_duration);
   RUN_TEST(test_configure_sets_inactive_level);
   return UNITY_END();

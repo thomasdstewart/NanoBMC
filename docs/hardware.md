@@ -11,7 +11,7 @@ Use this table as the single source of truth for the default wiring. The firmwar
 | Ground | `GND` | `GND` | `GND` | Physical pin 6, 9, 14, 20, 25, 30, 34, or 39 | Required common reference |
 | UART RX | `GPIO0` by default, configured by `SERIAL_RX_GPIO` | Use the header/pad for `GPIO0`; do not use a silkscreen-only `RX` pin unless your board pinout confirms it is `GPIO0` | `GPIO14` / `TXD0` | Physical pin 8 | Pi console output to NanoBMC |
 | UART TX | `GPIO1` by default, configured by `SERIAL_TX_GPIO` | Use the header/pad for `GPIO1`; do not use a silkscreen-only `TX` pin unless your board pinout confirms it is `GPIO1` | `GPIO15` / `RXD0` | Physical pin 10 | NanoBMC input to Pi console |
-| Pi reset output | `GPIO4` by default, configured by `PI_RESET_GPIO` | Often `D2` on D1-mini-style boards; verify your board pinout | `RUN` / reset header or pad through safe circuit | Dedicated RUN header/pads; not a normal 40-pin GPIO header pin | Active-low reset pulse |
+| Pi reset output | `GPIO4` by default, configured by `PI_RESET_GPIO` | Often `D2` on D1-mini-style boards; verify your board pinout | `RUN` / reset header or pad through safe circuit | Dedicated RUN header/pads; not a normal 40-pin GPIO header pin | Idle-low, pulse-high reset output |
 
 UART TX/RX must be crossed: NanoBMC `SERIAL_RX_GPIO` connects to Pi `GPIO14`/`TXD0`, and NanoBMC `SERIAL_TX_GPIO` connects to Pi `GPIO15`/`RXD0`.
 
@@ -34,9 +34,9 @@ If your board does not break out `GPIO0` and `GPIO1`, choose two safe 3.3 V GPIO
 
 - Use 3.3 V UART logic only.
 - Do not connect 5 V signals to ESP32-C3 GPIOs.
-- Do not drive the Raspberry Pi `RUN` pin directly high from the ESP32-C3.
-- Treat reset as active-low: NanoBMC should only pull the reset circuit low, then release it.
-- Use open-drain behaviour or an external transistor/MOSFET circuit for reset isolation.
+- Do not connect the Raspberry Pi `RUN` pin directly to the ESP32-C3 unless your interface circuit is designed for the configured reset polarity.
+- By default NanoBMC keeps the reset GPIO low at boot and pulses it high only for the reset duration.
+- Use an external transistor/MOSFET or other isolation circuit that translates the default idle-low, pulse-high GPIO into the reset behavior your Pi wiring requires.
 
 ## Changing pins
 
