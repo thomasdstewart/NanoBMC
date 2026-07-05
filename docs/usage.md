@@ -36,4 +36,4 @@ The bridge is a raw byte stream, with minimal telnet option negotiation on conne
 
 ## Reset the Raspberry Pi
 
-Open `http://192.168.4.1/` in a browser and press **Pulse Pi reset**. NanoBMC pulls the configured reset GPIO active for 500 ms by default, then releases it.
+Open `http://192.168.4.1/` in a browser and press **Pulse Pi reset**. NanoBMC drives the configured reset GPIO high for 500 ms by default, then returns it low.

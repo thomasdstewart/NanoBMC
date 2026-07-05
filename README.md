@@ -1,6 +1,6 @@
 # NanoBMC
 
-NanoBMC is a small ESP32-C3 based "poor man's BMC" for a headless Raspberry Pi or Compute Module. It starts a local WiFi access point, exposes a raw TCP-to-UART serial bridge on port 23, serves a minimal status page, and can pulse a configured GPIO to reset the Pi through a safe active-low RUN/reset circuit.
+NanoBMC is a small ESP32-C3 based "poor man's BMC" for a headless Raspberry Pi or Compute Module. It starts a local WiFi access point, exposes a raw TCP-to-UART serial bridge on port 23, serves a minimal status page, and can pulse a configured GPIO high to reset the Pi through the configured reset circuit.
 
 ## What it is not
 
@@ -36,9 +36,9 @@ Required hardware:
 - ESP32-C3 development board
 - Raspberry Pi or Compute Module with UART enabled
 - Jumper wires and common ground
-- Safe Pi RUN/reset interface, such as an open-drain style transistor/MOSFET circuit
+- Safe Pi RUN/reset interface that matches the configured reset polarity
 
-See [docs/hardware.md](docs/hardware.md) for the canonical wiring table. Do not drive the Pi RUN pin directly high; use 3.3 V logic only and treat reset as active-low.
+See [docs/hardware.md](docs/hardware.md) for the canonical wiring table. Use 3.3 V logic only and confirm your reset circuit expects the default idle-low, pulse-high behavior before wiring it to the Pi reset input.
 
 ## Default access
 

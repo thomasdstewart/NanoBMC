@@ -40,7 +40,7 @@ ESP32-C3 RX   -> Raspberry Pi TX
 ESP32-C3 TX   -> Raspberry Pi RX
 ESP32-C3 GPIO -> Raspberry Pi RUN/reset circuit
 
-Do not drive the Pi RUN pin directly high. Treat reset as active-low. Use open-drain behaviour or an external transistor/MOSFET circuit.
+Use an external transistor/MOSFET or other isolation circuit that matches the configured reset polarity. The default reset GPIO behavior is idle-low at boot with a pulse-high reset action.
 
 Project Name
 
@@ -103,8 +103,8 @@ Add a function to pulse the configured reset GPIO.
 
 Default behaviour:
 
-Pull reset GPIO active for 500 ms
-Release reset GPIO
+Drive reset GPIO high for 500 ms
+Return reset GPIO low
 
 The reset GPIO must be configurable or easy to change in one header file.
 
@@ -141,7 +141,7 @@ include/config.h       # ignored by git
 #define SERIAL_TCP_PORT 23
 
 #define PI_RESET_GPIO 4
-#define PI_RESET_ACTIVE_LOW true
+#define PI_RESET_ACTIVE_LOW false
 #define PI_RESET_PULSE_MS 500
 
 "README.md" must explain:
@@ -216,7 +216,7 @@ Add unit tests for logic that can run natively.
 
 Minimum tests:
 
-- Reset pulse configuration validates active-low behaviour.
+- Reset pulse configuration validates default idle-low, pulse-high behaviour.
 - Reset pulse duration is read from config.
 - Serial bridge buffer handling does not drop simple byte sequences.
 - Serial bridge handles disconnected client state.
@@ -360,7 +360,7 @@ On boot:
 
 1. Initialise serial debug output over USB serial.
 2. Initialise Pi UART.
-3. Configure reset GPIO inactive.
+3. Configure reset GPIO inactive (low by default).
 4. Start WiFi AP.
 5. Start TCP serial bridge.
 6. Start web server.
