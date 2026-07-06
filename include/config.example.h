@@ -2,6 +2,7 @@
 
 #define NANOBMC_NAME "NanoBMC"
 #define NANOBMC_VERSION "0.1.0"
+#define NANOBMC_CPU_FREQ_MHZ 160
 
 #define WIFI_AP_SSID "NanoBMC"
 #define WIFI_AP_PASSWORD "changeme-nanobmc"

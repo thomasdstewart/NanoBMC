@@ -6,6 +6,10 @@
 #include "config.example.h"
 #endif
 
+#ifndef NANOBMC_CPU_FREQ_MHZ
+#define NANOBMC_CPU_FREQ_MHZ 160
+#endif
+
 #ifndef WIFI_AP_CHANNEL
 #define WIFI_AP_CHANNEL 6
 #endif

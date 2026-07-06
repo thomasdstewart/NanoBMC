@@ -73,6 +73,14 @@ String wifiTxPowerDiagnostic() {
   return formatWifiPowerQuarterDbm(static_cast<int8_t>(WiFi.getTxPower()));
 }
 
+String cpuFrequencyDiagnostic() {
+#if defined(ARDUINO_ARCH_ESP32)
+  return String(getCpuFrequencyMhz()) + " MHz";
+#else
+  return "not supported by this Arduino target";
+#endif
+}
+
 String htmlHeader(const String &title) {
   return "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' "
          "content='width=device-width,initial-scale=1'><title>" +
@@ -95,6 +103,7 @@ void handleRoot() {
   page += "<dt>Chip temperature</dt><dd>" + chipTemperatureDiagnostic() + "</dd>";
   page += "<dt>AP client count</dt><dd>" + apClientCountDiagnostic() + "</dd>";
   page += "<dt>WiFi transmit power</dt><dd>" + wifiTxPowerDiagnostic() + "</dd>";
+  page += "<dt>CPU frequency</dt><dd>" + cpuFrequencyDiagnostic() + "</dd>";
   page += "<dt>Serial client connected</dt><dd>" +
           String(serialBridgeClientConnected() ? "yes" : "no") + "</dd>";
   page += "</dl>";
