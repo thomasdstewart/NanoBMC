@@ -38,6 +38,24 @@ If your board does not break out `GPIO0` and `GPIO1`, choose two safe 3.3 V GPIO
 - By default NanoBMC keeps the reset GPIO low at boot and pulses it high only for the reset duration.
 - Use an external transistor/MOSFET or other isolation circuit that translates the default idle-low, pulse-high GPIO into the reset behavior your Pi wiring requires.
 
+## Thermal considerations
+
+Small ESP32-C3 development boards can run warm in normal NanoBMC service, especially when operating continuously as a WiFi access point. Treat heat as a system-level issue rather than assuming the ESP32 package is the only source. Common contributors include:
+
+- **Continuous WiFi AP operation:** Keeping the WiFi radio active for long periods raises ESP32 package temperature. If range allows, reduce AP transmit power in firmware configuration and re-test stability.
+- **Onboard linear regulators:** Many development boards use small linear regulators that dissipate the voltage drop from USB or other input supplies as heat. A hot regulator can make the nearby ESP32 feel warm even when the chip itself is within limits.
+- **USB-to-serial chips:** Boards with a separate USB-UART bridge can have another warm IC near the ESP32 or regulator, particularly while USB is connected for logging or flashing.
+- **Enclosure airflow:** Sealed or tight enclosures trap heat from the ESP32, regulator, USB-to-serial chip, and adjacent Raspberry Pi. Test the board outside the enclosure, then compare temperatures in the final case with the intended lid, cable routing, and mounting orientation.
+- **Accidental 5 V loading:** Do not power external 5 V loads from NanoBMC board pins unless the board's regulator and USB supply path are explicitly rated for that current. Extra load can overheat traces, protection devices, or regulators.
+- **Back-powering risks:** Wiring mistakes can feed power into the Raspberry Pi through UART, reset, or other NanoBMC connections. Verify the Pi is not drawing power through NanoBMC wiring when its normal supply is removed; only the intended logic signals and common ground should be connected.
+
+Practical checks when diagnosing heat:
+
+1. Measure the ESP32 package separately from the onboard regulator and any USB-to-serial chip, using a thermal camera, contact probe, or careful point measurements.
+2. Repeat the same workload with the board outside the enclosure to separate enclosure airflow problems from board-level heat sources.
+3. Reduce AP transmit power if local access still works reliably, then confirm UART bridge and web interface behavior over a long run.
+4. With the Raspberry Pi's normal power disconnected, verify it is not partially powering up or drawing current through NanoBMC UART/reset wiring.
+
 ## Changing pins
 
 Copy `include/config.example.h` to `include/config.h`, then edit `SERIAL_RX_GPIO`, `SERIAL_TX_GPIO`, or `PI_RESET_GPIO` for your board. Rebuild and flash after changing any pin assignment.
