@@ -5,6 +5,9 @@
 
 #define WIFI_AP_SSID "NanoBMC"
 #define WIFI_AP_PASSWORD "changeme-nanobmc"
+#define WIFI_AP_CHANNEL 6
+#define WIFI_AP_TX_POWER WIFI_POWER_8_5dBm
+#define WIFI_AP_IDLE_TIMEOUT_SECONDS 300
 
 #define SERIAL_BAUD 115200
 #define SERIAL_RX_GPIO 0
