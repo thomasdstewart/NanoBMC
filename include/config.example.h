@@ -6,6 +6,18 @@
 #define WIFI_AP_SSID "NanoBMC"
 #define WIFI_AP_PASSWORD "changeme-nanobmc"
 #define WIFI_AP_CHANNEL 6
+
+// WiFi AP TX power presets to try for short-range servicing:
+//
+// | Preset | When to try |
+// | --- | --- |
+// | WIFI_POWER_8_5dBm | Current default; start here for reduced heat versus maximum power. |
+// | WIFI_POWER_7dBm | Try next when servicing from the same rack or nearby bench. |
+// | WIFI_POWER_5dBm | Try for very short-range access when the client stays close to NanoBMC. |
+// | WIFI_POWER_2dBm | Lowest short-range candidate; use only after reliability testing. |
+//
+// Before enclosing the board, test web and serial bridge connection reliability at the
+// actual expected service distance, with the intended client device and enclosure position.
 #define WIFI_AP_TX_POWER WIFI_POWER_8_5dBm
 #define WIFI_AP_IDLE_TIMEOUT_SECONDS 300
 
