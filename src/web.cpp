@@ -78,7 +78,7 @@ String htmlHeader(const String &title) {
          "content='width=device-width,initial-scale=1'><title>" +
          title +
          "</title><style>body{font-family:sans-serif;max-width:720px;margin:2rem auto;padding:0 "
-         "1rem}dt{font-weight:bold}button{font-size:1rem;padding:.5rem 1rem}</style></head><body>";
+         "1rem}dt{display:inline;font-weight:bold}dt::after{content:': '}dd{display:inline;margin:0}dd::after{content:'';display:block;margin-bottom:.35rem}button{font-size:1rem;padding:.5rem 1rem}</style></head><body>";
 }
 
 void handleRoot() {
