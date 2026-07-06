@@ -25,6 +25,7 @@ public:
 
 #ifdef ARDUINO
 void beginSerialBridge();
-void handleSerialBridge();
+size_t handleSerialBridge();
 bool serialBridgeClientConnected();
+bool serialBridgeIdle();
 #endif
