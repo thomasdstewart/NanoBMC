@@ -174,7 +174,7 @@ void beginSerialBridge() {
   server.setNoDelay(true);
 }
 
-void handleSerialBridge() {
+size_t handleSerialBridge() {
   WiFiClient incoming = server.available();
   if (incoming) {
     if (client && client.connected()) {
@@ -187,10 +187,14 @@ void handleSerialBridge() {
       pump.sendTelnetGreeting(io);
     }
   }
-  pump.pump(io);
+  return pump.pump(io);
 }
 
 bool serialBridgeClientConnected() {
   return client && client.connected();
+}
+
+bool serialBridgeIdle() {
+  return !serialBridgeClientConnected();
 }
 #endif

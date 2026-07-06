@@ -11,6 +11,20 @@
 
 namespace {
 WebServer server(80);
+bool requestActive = false;
+uint32_t lastRequestFinishedMs = 0;
+
+class ScopedWebRequestActivity {
+public:
+  ScopedWebRequestActivity() {
+    requestActive = true;
+  }
+
+  ~ScopedWebRequestActivity() {
+    requestActive = false;
+    lastRequestFinishedMs = millis();
+  }
+};
 
 String htmlHeader(const String &title) {
   return "<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' "
@@ -21,6 +35,7 @@ String htmlHeader(const String &title) {
 }
 
 void handleRoot() {
+  ScopedWebRequestActivity activity;
   String page = htmlHeader(NANOBMC_NAME);
   page += "<h1>" NANOBMC_NAME "</h1>";
   page += "<dl>";
@@ -40,6 +55,7 @@ void handleRoot() {
 }
 
 void handleReset() {
+  ScopedWebRequestActivity activity;
   pulsePiReset();
   String page = htmlHeader("Reset sent");
   page += "<h1>Reset pulse sent</h1><p>The configured reset GPIO was pulsed.</p>";
@@ -51,11 +67,22 @@ void handleReset() {
 void beginWebServer() {
   server.on("/", HTTP_GET, handleRoot);
   server.on("/reset", HTTP_POST, handleReset);
-  server.onNotFound([]() { server.send(404, "text/plain", "Not found"); });
+  server.onNotFound([]() {
+    ScopedWebRequestActivity activity;
+    server.send(404, "text/plain", "Not found");
+  });
   server.begin();
 }
 
 void handleWebServer() {
   server.handleClient();
+}
+
+bool webRequestActive() {
+  if (requestActive) {
+    return true;
+  }
+  return lastRequestFinishedMs != 0 &&
+         millis() - lastRequestFinishedMs < NANOBMC_WEB_REQUEST_IDLE_GRACE_MS;
 }
 #endif
