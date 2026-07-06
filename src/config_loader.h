@@ -6,6 +6,18 @@
 #include "config.example.h"
 #endif
 
+#ifndef WIFI_AP_CHANNEL
+#define WIFI_AP_CHANNEL 6
+#endif
+
+#ifndef WIFI_AP_TX_POWER
+#define WIFI_AP_TX_POWER WIFI_POWER_8_5dBm
+#endif
+
+#ifndef WIFI_AP_IDLE_TIMEOUT_SECONDS
+#define WIFI_AP_IDLE_TIMEOUT_SECONDS 300
+#endif
+
 #ifndef SERIAL_RX_GPIO
 #define SERIAL_RX_GPIO 0
 #endif

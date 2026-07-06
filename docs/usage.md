@@ -37,3 +37,13 @@ The bridge is a raw byte stream, with minimal telnet option negotiation on conne
 ## Reset the Raspberry Pi
 
 Open `http://192.168.4.1/` in a browser and press **Pulse Pi reset**. NanoBMC drives the configured reset GPIO high for 500 ms by default, then returns it low.
+
+## Lower-power access point operation
+
+NanoBMC can reduce heat and power draw by lowering the ESP32-C3 soft-AP transmit power. Copy `include/config.example.h` to `include/config.h`, then tune these AP settings before rebuilding:
+
+- `WIFI_AP_CHANNEL` selects the fixed 2.4 GHz AP channel. Keep it on a locally quiet channel when possible.
+- `WIFI_AP_TX_POWER` is passed to the ESP32 Arduino `WiFi.setTxPower(...)` API after the AP starts. The example uses `WIFI_POWER_8_5dBm` instead of the maximum radio power to reduce thermal load.
+- `WIFI_AP_IDLE_TIMEOUT_SECONDS` asks the WiFi driver to disconnect idle AP clients after the configured number of seconds. Set it to `0` to leave the driver default unchanged.
+
+Lower transmit power can noticeably reduce ESP32-C3 temperature in enclosed builds, but it also reduces WiFi range and link margin. If your serial bridge drops connections, raise `WIFI_AP_TX_POWER`, move closer to NanoBMC, or improve antenna placement and enclosure ventilation.
