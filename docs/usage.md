@@ -24,6 +24,13 @@ curl http://192.168.4.1/
 
 A browser is recommended for the reset button because it includes a confirmation prompt before POSTing to `/reset`.
 
+The status page also reports ESP32 diagnostics when the active Arduino-ESP32 core exposes the required APIs:
+
+- **Free heap** is the currently available heap in bytes. It will change as web or serial clients connect and disconnect; watch for a continuing downward trend across refreshes rather than a single low sample.
+- **Chip temperature** is shown in degrees Celsius only on Arduino-ESP32 target/core combinations that support `temperatureRead()` via the SoC temperature sensor capability. Treat it as an internal chip reading for trend monitoring, not an ambient air temperature. Unsupported builds show an explicit unsupported message instead of a number.
+- **AP client count** is the number of stations associated with the NanoBMC access point. This can include a browser, a telnet/netcat serial client host, or any device still connected to the AP.
+- **WiFi transmit power** is the configured ESP32 radio transmit-power setting in dBm. It is the requested/configured power level reported by the WiFi stack, not a measurement of received signal strength at the client.
+
 ## Serial bridge
 
 Connect with netcat or telnet-style tools:
