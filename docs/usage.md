@@ -53,4 +53,15 @@ NanoBMC can reduce heat and power draw by lowering the ESP32-C3 soft-AP transmit
 - `WIFI_AP_TX_POWER` is passed to the ESP32 Arduino `WiFi.setTxPower(...)` API after the AP starts. The example uses `WIFI_POWER_8_5dBm` instead of the maximum radio power to reduce thermal load.
 - `WIFI_AP_IDLE_TIMEOUT_SECONDS` asks the WiFi driver to disconnect idle AP clients after the configured number of seconds. Set it to `0` to leave the driver default unchanged.
 
+Suggested AP transmit-power presets to try, starting at the checked-in default and moving lower for short-range servicing:
+
+| Preset | Suggested use |
+| --- | --- |
+| `WIFI_POWER_8_5dBm` | Current default; start here for reduced heat versus maximum power. |
+| `WIFI_POWER_7dBm` | Try next when servicing from the same rack or nearby bench. |
+| `WIFI_POWER_5dBm` | Try for very short-range access when the client stays close to NanoBMC. |
+| `WIFI_POWER_2dBm` | Lowest short-range candidate; use only after reliability testing. |
+
 Lower transmit power can noticeably reduce ESP32-C3 temperature in enclosed builds, but it also reduces WiFi range and link margin. If your serial bridge drops connections, raise `WIFI_AP_TX_POWER`, move closer to NanoBMC, or improve antenna placement and enclosure ventilation.
+
+Before enclosing the board, test web and serial bridge connection reliability at the actual expected service distance with the intended client device, final antenna orientation, and enclosure position.
