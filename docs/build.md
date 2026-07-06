@@ -23,6 +23,7 @@ Edit `include/config.h` before building:
 - `SERIAL_TCP_PORT` defaults to `23` for the raw TCP serial bridge.
 - `PI_RESET_GPIO` defaults to `4` for the reset pulse output.
 - `PI_RESET_PULSE_MS` defaults to `500` ms.
+- `NANOBMC_CPU_FREQ_MHZ` sets the ESP32 Arduino CPU frequency during early boot. ESP32-C3 boards should generally use `80` or `160` MHz; the example defaults to `160` MHz. Retest UART and serial bridge behavior after changing this value because clock changes can affect timing-sensitive serial operation.
 
 Change the default AP password before practical use.
 
@@ -40,4 +41,4 @@ The default PlatformIO board is `esp32-c3-devkitm-1`. If your ESP32-C3 D1-style 
 pio device monitor -b 115200
 ```
 
-The boot log should show the firmware name, version, AP name, AP IP address, TCP serial port, and web port.
+The boot log should show the firmware name, version, CPU frequency, AP name, AP IP address, TCP serial port, and web port.

@@ -30,6 +30,7 @@ The status page also reports ESP32 diagnostics when the active Arduino-ESP32 cor
 - **Chip temperature** is shown in degrees Celsius only on Arduino-ESP32 target/core combinations that support `temperatureRead()` via the SoC temperature sensor capability. Treat it as an internal chip reading for trend monitoring, not an ambient air temperature. Unsupported builds show an explicit unsupported message instead of a number.
 - **AP client count** is the number of stations associated with the NanoBMC access point. This can include a browser, a telnet/netcat serial client host, or any device still connected to the AP.
 - **WiFi transmit power** is the configured ESP32 radio transmit-power setting in dBm. It is the requested/configured power level reported by the WiFi stack, not a measurement of received signal strength at the client.
+- **CPU frequency** is the ESP32 Arduino CPU clock reported after NanoBMC applies `NANOBMC_CPU_FREQ_MHZ` during setup. ESP32-C3 boards should generally use `80` or `160` MHz. Retest UART and serial bridge behavior after changing this value because clock changes can affect timing-sensitive serial operation.
 
 ## Serial bridge
 

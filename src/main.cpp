@@ -31,6 +31,10 @@ void idleDelay() {
 } // namespace
 
 void setup() {
+#if defined(ARDUINO_ARCH_ESP32)
+  setCpuFrequencyMhz(NANOBMC_CPU_FREQ_MHZ);
+#endif
+
   Serial.begin(115200);
   delay(200);
 
@@ -38,6 +42,11 @@ void setup() {
   Serial.print(NANOBMC_NAME);
   Serial.print(" ");
   Serial.println(NANOBMC_VERSION);
+#if defined(ARDUINO_ARCH_ESP32)
+  Serial.print("CPU frequency: ");
+  Serial.print(getCpuFrequencyMhz());
+  Serial.println(" MHz");
+#endif
 
   setupResetControl();
 
