@@ -20,7 +20,7 @@ NanoBMC v0.1.0 intentionally does not include MQTT, OTA updates, BLE, captive po
 ```sh
 python3 -m venv .venv
 . .venv/bin/activate
-pip install platformio
+pip install platformio intelhex
 cp include/config.example.h include/config.h
 pio run -e esp32c3
 pio run -e esp32c3 -t upload
