@@ -89,9 +89,6 @@ The page should show:
 
 - Project name and firmware version
 - Uptime
-- WiFi AP SSID
-- IP address
-- Serial bridge port
 - Whether a serial client is connected
 - Reset button
 
