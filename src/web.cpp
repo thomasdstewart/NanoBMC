@@ -4,7 +4,6 @@
 #ifdef ARDUINO
 #include "reset_control.h"
 #include "serial_bridge.h"
-#include "wifi_ap.h"
 
 #include <Arduino.h>
 #include <WebServer.h>
@@ -96,9 +95,6 @@ void handleRoot() {
   page += "<dl>";
   page += "<dt>Firmware version</dt><dd>" NANOBMC_VERSION "</dd>";
   page += "<dt>Uptime</dt><dd>" + String(millis() / 1000) + " seconds</dd>";
-  page += "<dt>WiFi AP SSID</dt><dd>" WIFI_AP_SSID "</dd>";
-  page += "<dt>IP address</dt><dd>" + String(wifiApIpAddress()) + "</dd>";
-  page += "<dt>Serial bridge port</dt><dd>" + String(SERIAL_TCP_PORT) + "</dd>";
   page += "<dt>Free heap</dt><dd>" + freeHeapDiagnostic() + "</dd>";
   page += "<dt>Chip temperature</dt><dd>" + chipTemperatureDiagnostic() + "</dd>";
   page += "<dt>AP client count</dt><dd>" + apClientCountDiagnostic() + "</dd>";
