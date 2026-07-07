@@ -11,22 +11,41 @@
 #endif
 
 namespace {
-void idleDelay() {
-#if NANOBMC_IDLE_POWER_SAVE_ENABLED
-  const bool idle = serialBridgeIdle() && !webRequestActive();
-  if (idle) {
+uint32_t lastSerialActivityMs = 0;
+
+void noClientDelay() {
 #if NANOBMC_IDLE_LIGHT_SLEEP_ENABLED && defined(ARDUINO_ARCH_ESP32)
-    esp_sleep_enable_timer_wakeup(
-        static_cast<uint64_t>(NANOBMC_IDLE_LIGHT_SLEEP_MS) * 1000ULL);
-    esp_light_sleep_start();
+  esp_sleep_enable_timer_wakeup(
+      static_cast<uint64_t>(NANOBMC_NO_CLIENT_DELAY_MS) * 1000ULL);
+  esp_light_sleep_start();
 #else
-    delay(NANOBMC_IDLE_DELAY_MS);
+  delay(NANOBMC_NO_CLIENT_DELAY_MS);
 #endif
+}
+
+void idleDelay(bool serialConnected) {
+#if NANOBMC_IDLE_POWER_SAVE_ENABLED
+  const uint32_t nowMs = millis();
+  const bool webActive = webRequestActive();
+  const bool serialRecentlyActive =
+      serialConnected &&
+      (nowMs - lastSerialActivityMs <= NANOBMC_SERIAL_RECENT_ACTIVITY_MS);
+
+  if (webActive || serialRecentlyActive) {
+    delay(NANOBMC_SERIAL_ACTIVE_DELAY_MS);
     return;
   }
+
+  if (serialConnected) {
+    delay(NANOBMC_CONNECTED_IDLE_DELAY_MS);
+    return;
+  }
+
+  noClientDelay();
+  return;
 #endif
 
-  delay(NANOBMC_ACTIVE_DELAY_MS);
+  delay(NANOBMC_SERIAL_ACTIVE_DELAY_MS);
 }
 } // namespace
 
@@ -66,7 +85,10 @@ void setup() {
 }
 
 void loop() {
-  handleSerialBridge();
+  const SerialBridgePollResult serialBridgeResult = handleSerialBridge();
+  if (serialBridgeResult.bytesMoved) {
+    lastSerialActivityMs = millis();
+  }
   handleWebServer();
-  idleDelay();
+  idleDelay(serialBridgeResult.clientConnected);
 }
