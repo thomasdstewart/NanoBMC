@@ -24,8 +24,13 @@ public:
 };
 
 #ifdef ARDUINO
+struct SerialBridgePollResult {
+  bool clientConnected;
+  bool bytesMoved;
+};
+
 void beginSerialBridge();
-size_t handleSerialBridge();
+SerialBridgePollResult handleSerialBridge();
 bool serialBridgeClientConnected();
 bool serialBridgeIdle();
 #endif
