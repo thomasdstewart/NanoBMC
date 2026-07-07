@@ -16,7 +16,7 @@ uint32_t lastSerialActivityMs = 0;
 void noClientDelay() {
 #if NANOBMC_IDLE_LIGHT_SLEEP_ENABLED && defined(ARDUINO_ARCH_ESP32)
   esp_sleep_enable_timer_wakeup(
-      static_cast<uint64_t>(NANOBMC_NO_CLIENT_DELAY_MS) * 1000ULL);
+      static_cast<uint64_t>(NANOBMC_IDLE_LIGHT_SLEEP_MS) * 1000ULL);
   esp_light_sleep_start();
 #else
   delay(NANOBMC_NO_CLIENT_DELAY_MS);
